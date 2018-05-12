@@ -88,7 +88,30 @@
                   <TextField fx:id="tf_remove_surname" layoutX="266.0" layoutY="238.0" promptText="Enter guest surname" />
                   <Button fx:id="btn_remove_submit" layoutX="84.0" layoutY="295.0" mnemonicParsing="false" onAction="#handleButtonActionRemoval" prefHeight="32.0" prefWidth="336.0" text="Submit" />
                </children></Pane>
-            <Pane fx:id="pane_hotel_status" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #123;" />
+            <Pane fx:id="pane_hotel_status" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #123;">
+               <children>
+                  <Text fill="WHITE" layoutX="223.0" layoutY="38.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hotel status" />
+                  <Pane fx:id="pane_hotelstatus_first" layoutX="14.0" layoutY="74.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #FFF;">
+                     <children>
+                        <ImageView fx:id="hotel_status_first" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                     </children></Pane>
+                  <Pane fx:id="pane_hotelstatus_second" layoutX="192.0" layoutY="74.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #ffa;">
+                     <children>
+                        <ImageView fx:id="hotel_status_second" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                     </children></Pane>
+                  <Pane fx:id="pane_hotelstatus_third" layoutX="370.0" layoutY="74.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #dda;">
+                     <children>
+                        <ImageView fx:id="hotel_status_third" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                     </children></Pane>
+                  <Pane fx:id="pane_hotelstatus_fourth" layoutX="89.0" layoutY="249.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #fad;">
+                     <children>
+                        <ImageView fx:id="hotel_status_fourth" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                     </children></Pane>
+                  <Pane fx:id="pane_hotelstatus_fifth" layoutX="295.0" layoutY="249.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #fef;">
+                     <children>
+                        <ImageView fx:id="hotel_status_fifth" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                     </children></Pane>
+               </children></Pane>
          </children>
       </AnchorPane>
    </children>

@@ -9,7 +9,6 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.util.HashMap;
 import javafx.collections.ObservableList;
 import model.Guest;
 
@@ -47,7 +46,6 @@ public class GuestDAO {
             System.out.println("Sorry, database is not connected ");			
         } 
     }
-    
     
     public void getAllGuests(ObservableList<Guest> guestsList){
         String sql = "SELECT * FROM `guests`";

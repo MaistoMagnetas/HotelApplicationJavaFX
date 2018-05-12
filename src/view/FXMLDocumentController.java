@@ -6,21 +6,30 @@
 package view;
 
 import controller.GuestDAO;
+import controller.RoomDAO;
 import controller.Validation;
+import java.io.FileInputStream;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
-import javafx.stage.Window;
+import javafx.scene.paint.Color;
 import model.Guest;
+import model.Room;
 
 /**
  *
@@ -33,11 +42,21 @@ public class FXMLDocumentController implements Initializable {
             btn_registration_submit, btn_remove_submit;
     
     @FXML
-    private Pane pane_home, pane_register_guest, pane_remove_guest, pane_hotel_status;
+    private Pane pane_home, pane_register_guest, pane_remove_guest, pane_hotel_status,
+            pane_hotelstatus_first,pane_hotelstatus_second,pane_hotelstatus_third,
+            pane_hotelstatus_fourth,pane_hotelstatus_fifth;
     
+    @FXML
+    private ImageView hotel_status_first, hotel_status_second, hotel_status_third,
+            hotel_status_fourth, hotel_status_fifth;
+               
     @FXML
     private TextField tf_registration_name, tf_registration_surname, tf_remove_name,
             tf_remove_surname;
+    
+    private ArrayList<ImageView> hotelStatusPaneList;
+    private Image ivRoomFree, ivRoomTaken;
+    
     
     @FXML
     private void handleButtonActionSidebar(ActionEvent event) {
@@ -47,6 +66,7 @@ public class FXMLDocumentController implements Initializable {
             pane_remove_guest.toFront();
         }else if(event.getSource() == btn_sb_hotel_status){
             pane_hotel_status.toFront();
+            hotelStatusFromSQL();
         }else{
            pane_home.toFront();
         }
@@ -75,6 +95,8 @@ public class FXMLDocumentController implements Initializable {
         System.out.println(guestSurname);
     }
     
+    
+    //Checks if user is in database and removes it
     @FXML
     private void handleButtonActionRemoval(ActionEvent event) {
         String guestName = tf_remove_name.getText().toString();
@@ -93,9 +115,23 @@ public class FXMLDocumentController implements Initializable {
         System.out.println(guestSurname);
     }
     
+       
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+    public void initialize(URL url, ResourceBundle rb) {        
+        hotelStatusPaneList = new ArrayList<ImageView>();
+        hotelStatusPaneList.add(hotel_status_first);
+        hotelStatusPaneList.add(hotel_status_second);
+        hotelStatusPaneList.add(hotel_status_third);
+        hotelStatusPaneList.add(hotel_status_fourth);
+        hotelStatusPaneList.add(hotel_status_fifth);
+        
+        try{
+           ivRoomFree = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\green.png"));
+           ivRoomTaken = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\red.png"));
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }   
+        
     }    
     
     private void showAlert(Alert.AlertType alerType, String title, String message){
@@ -104,6 +140,21 @@ public class FXMLDocumentController implements Initializable {
 	alert.setHeaderText(null);
 	alert.setContentText(message);
 	alert.show();
+    }
+    
+    private void hotelStatusFromSQL(){       
+        RoomDAO roomDao = new RoomDAO();
+        ObservableList<Room> roomsList= FXCollections.observableArrayList();
+        roomDao.getAllRooms(roomsList);            
+        for(int i = 0;i<roomsList.size();i++){            
+            if(roomsList.get(i).isRoomTaken() == true){                
+                hotelStatusPaneList.get(i).setImage(ivRoomTaken);               
+               //hotelStatusPaneList.get(i).setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+            }else{
+               //hotelStatusPaneList.get(i).setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY))); 
+               hotelStatusPaneList.get(i).setImage(ivRoomFree);
+            }
+        }
     }
     
 }
