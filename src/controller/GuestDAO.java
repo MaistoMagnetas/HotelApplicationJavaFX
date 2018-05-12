@@ -1,0 +1,73 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package controller;
+
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.PreparedStatement;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import javafx.collections.ObservableList;
+import model.Guest;
+
+/**
+ *
+ * @author PC
+ */
+public class GuestDAO {
+    
+    public void addGuest(Guest guest){
+        String sql = "INSERT INTO `guests`(`name`, `surname`) VALUES (?,?)";
+        try{
+            Connection myConnection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/nomagichotel", "root", "");
+            PreparedStatement addGuestStatement = (PreparedStatement) myConnection.prepareStatement(sql);
+            addGuestStatement.setString(1, guest.getName());
+            addGuestStatement.setString(2, guest.getSurname());
+            addGuestStatement.execute();
+            addGuestStatement.close();
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Sorry, database is not connected ");
+        }
+    }
+    
+    public void removeGuest(Guest guest){
+        String sql = "DELETE FROM `guests` WHERE name = ? AND surname = ?";
+        try{
+            Connection myConnection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/nomagichotel", "root", "");
+            PreparedStatement deleteGuestStatement = (PreparedStatement) myConnection.prepareStatement(sql);
+            deleteGuestStatement.setString(1, guest.getName());
+            deleteGuestStatement.setString(2, guest.getSurname());
+            deleteGuestStatement.executeUpdate();
+	}catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Sorry, database is not connected ");			
+        } 
+    }
+    
+    
+    public void getAllGuests(ObservableList<Guest> guestsList){
+        String sql = "SELECT * FROM `guests`";
+        try{
+            Connection myConnection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/nomagichotel", "root", "");
+            PreparedStatement getAllGuestStatement = (PreparedStatement) myConnection.prepareStatement(sql);
+            ResultSet resultSet = getAllGuestStatement.executeQuery();
+            while (resultSet.next()) {
+                guestsList.add(new Guest(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("surname")));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    
+        
+}
+        
+    
+
