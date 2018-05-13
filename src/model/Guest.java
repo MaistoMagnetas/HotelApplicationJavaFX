@@ -21,6 +21,11 @@ public class Guest {
        
    }
    
+   public Guest(String name, String surname){
+       this.name = name;
+       this.surname = surname;
+   }
+   
    public Guest(String name, String surname, int roomNum, boolean guestStatus){
        this.name = name;
        this.surname = surname;
