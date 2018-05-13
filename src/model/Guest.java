@@ -14,21 +14,28 @@ public class Guest {
    private int id;
    private String name;
    private String surname;
+   private int roomNum;
+   private boolean guestStatus;
    
    public Guest(){
        
    }
    
-   public Guest(String name, String surname){
+   public Guest(String name, String surname, int roomNum, boolean guestStatus){
        this.name = name;
        this.surname = surname;
+       this.roomNum = roomNum;
+       this.guestStatus = guestStatus;
    }
    
-   public Guest(int id, String name, String surname){
+   public Guest(int id, String name, String surname, int roomNum, boolean guestStatus){
        this.id = id;
        this.name = name;
        this.surname = surname;
+       this.roomNum = roomNum;
+       this.guestStatus = guestStatus;       
    }
+   
    public int getId(){
        return id;
    }
@@ -47,6 +54,22 @@ public class Guest {
    
    public void setSurname(String surname){
        this.surname = surname;
+   }
+   
+   public int getRoomNum(){
+       return roomNum;
+   }
+   
+   public void setRoomNum(int roomNum){
+       this.roomNum = roomNum;
+   }
+   
+   public boolean isGuestActive(){
+       return guestStatus;
+   }
+   
+   public void setGuestStatus(boolean guestStatus){
+       this.guestStatus = guestStatus;
    }
    
    

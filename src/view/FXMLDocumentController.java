@@ -28,6 +28,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import model.Guest;
 import model.Room;
 
@@ -54,8 +55,12 @@ public class FXMLDocumentController implements Initializable {
     private TextField tf_registration_name, tf_registration_surname, tf_remove_name,
             tf_remove_surname;
     
+    @FXML 
+    private Text home_text_freerooms;
+    
     private ArrayList<ImageView> hotelStatusPaneList;
     private Image ivRoomFree, ivRoomTaken;
+    private int freeRoomsNumber,freeRoomNumber;
     
     
     @FXML
@@ -69,6 +74,7 @@ public class FXMLDocumentController implements Initializable {
             hotelStatusFromSQL();
         }else{
            pane_home.toFront();
+           home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL()));
         }
     }
     
@@ -77,40 +83,36 @@ public class FXMLDocumentController implements Initializable {
         //Validate textField data
         String guestName = tf_registration_name.getText().toString();
         String guestSurname = tf_registration_surname.getText().toString();
-        if(!Validation.isValidCredentials(guestName)){
-            showAlert(Alert.AlertType.ERROR,"Error","Name must only include A-Z(a-z) characters");
-            return;
-        }
-        if(!Validation.isValidCredentials(guestSurname)){
-            showAlert(Alert.AlertType.ERROR,"Error","Surname must only include A-Z(a-z) characters");
-            return;
-        }
-        //If data validated -> register new user
-        //TO-DO check if there is room in hotel
-        Guest guest = new Guest(guestName,guestSurname);
-        GuestDAO guestDao = new GuestDAO();
-        guestDao.addGuest(guest);
+        textValidationForNameAndSurname(guestName,guestSurname);
         
-        System.out.println(guestName);
-        System.out.println(guestSurname);
-    }
-    
+        freeRoomNumber = returnFreeRoomNumber();
+        if(freeRoomNumber>0 && freeRoomNumber<=5){
+            Guest guest = new Guest(guestName,guestSurname,freeRoomNumber,true);
+            GuestDAO guestDao = new GuestDAO();
+            guestDao.addGuest(guest);
+        }else{
+            showAlert(Alert.AlertType.ERROR,"Failed",String.format("Sorry but there are no free rooms",guest.getName(),guest.getSurname()));
+        }               
+    }   
     
     //Checks if user is in database and removes it
     @FXML
     private void handleButtonActionRemoval(ActionEvent event) {
         String guestName = tf_remove_name.getText().toString();
         String guestSurname = tf_remove_surname.getText().toString();        
+        textValidationForNameAndSurname(guestName,guestSurname);        
         GuestDAO guestDao = new GuestDAO();
+        RoomDAO roomDao = new RoomDAO();
         ObservableList<Guest> guestsList= FXCollections.observableArrayList();
         guestDao.getAllGuests(guestsList);
         for(Guest guest: guestsList){            
-            if(guest.getName().equals(guestName) && guest.getSurname().equals(guestSurname)){
-                guestDao.removeGuest(guest);
-                showAlert(Alert.AlertType.CONFIRMATION,"Success",String.format("Guest %s %s successfully removed",guest.getName(),guest.getSurname()));
+            if(guest.getName().equals(guestName) && guest.getSurname().equals(guestSurname) && guest.isGuestActive()==true){
+                roomDao.changeRoomAvailability(false,guest.getRoomNum());
+                guestDao.removeGuestFromRoom(guest);                
+                showAlert(Alert.AlertType.CONFIRMATION,"Success",String.format("Guest %s %s successfully removed"));
                 break;
             }
-        }
+        }        
         System.out.println(guestName);
         System.out.println(guestSurname);
     }
@@ -132,6 +134,8 @@ public class FXMLDocumentController implements Initializable {
             ex.printStackTrace();
         }   
         
+        home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL()));
+        
     }    
     
     private void showAlert(Alert.AlertType alerType, String title, String message){
@@ -142,18 +146,47 @@ public class FXMLDocumentController implements Initializable {
 	alert.show();
     }
     
-    private void hotelStatusFromSQL(){       
+    //Checks free rooms in hotel
+    private int hotelStatusFromSQL(){
+        int freeRooms = 5;
         RoomDAO roomDao = new RoomDAO();
         ObservableList<Room> roomsList= FXCollections.observableArrayList();
         roomDao.getAllRooms(roomsList);            
         for(int i = 0;i<roomsList.size();i++){            
             if(roomsList.get(i).isRoomTaken() == true){                
-                hotelStatusPaneList.get(i).setImage(ivRoomTaken);               
-               //hotelStatusPaneList.get(i).setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
-            }else{
-               //hotelStatusPaneList.get(i).setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY))); 
+                hotelStatusPaneList.get(i).setImage(ivRoomTaken);
+                freeRooms = freeRooms - 1;
+            }else{             
                hotelStatusPaneList.get(i).setImage(ivRoomFree);
             }
+        }
+        return freeRooms;
+    }
+    
+    //Return free room number
+    private int returnFreeRoomNumber(){        
+        int freeRoomNumber = -1;
+        RoomDAO roomDao = new RoomDAO();
+        ObservableList<Room> roomsList= FXCollections.observableArrayList();
+        roomDao.getAllRooms(roomsList);            
+        for(int i = 0;i<roomsList.size();i++){            
+            if(roomsList.get(i).isRoomTaken() == false){            
+                freeRoomNumber = i+1;
+                roomDao.changeRoomAvailability(true,freeRoomNumber);
+                break;
+            }
+        }
+        return freeRoomNumber;
+    }
+    
+    private void textValidationForNameAndSurname(String guestName, String guestSurname){
+        if(!Validation.isValidCredentials(guestName)){
+            showAlert(Alert.AlertType.ERROR,"Error","Name must only include A-Z(a-z) characters");
+            return;
+        }
+        if(!Validation.isValidCredentials(guestSurname)){
+            showAlert(Alert.AlertType.ERROR,"Error","Surname must only include A-Z(a-z) characters");
+            return;
         }
     }
     

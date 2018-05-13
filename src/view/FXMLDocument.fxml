@@ -45,7 +45,11 @@
       </AnchorPane>
       <AnchorPane layoutX="200.0" prefHeight="430.0" prefWidth="501.0" style="-fx-background-color: #155557;">
          <children>
-            <Pane fx:id="pane_home" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #FFF;" />
+            <Pane fx:id="pane_home" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #558;">
+               <children>
+                  <Text layoutX="29.0" layoutY="43.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Free rooms in hotel:" textAlignment="CENTER" wrappingWidth="192.9830722808838" />
+                  <Text fx:id="home_text_freerooms" layoutX="199.0" layoutY="43.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+               </children></Pane>
             <Pane fx:id="pane_register_guest" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #777;">
                <children>
                   <Text layoutX="102.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guest name:">

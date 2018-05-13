@@ -66,6 +66,20 @@ public class RoomDAO {
             e.printStackTrace();
         }
     }
+     
+    public void changeRoomAvailability(boolean availability,int integer){
+          String sql = "UPDATE `rooms` SET `status`= ? WHERE `id` = ?";
+        try{
+            Connection myConnection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/nomagichotel", "root", "");
+            PreparedStatement setRoomAsTakenStatement = (PreparedStatement) myConnection.prepareStatement(sql);
+            setRoomAsTakenStatement.setBoolean(1, availability);
+            setRoomAsTakenStatement.setInt(2, integer);              
+            setRoomAsTakenStatement.executeUpdate();
+	}catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Sorry, database is not connected ");			
+        }     
+    }
     
     
 }
