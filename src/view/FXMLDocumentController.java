@@ -25,6 +25,7 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -42,114 +43,196 @@ import model.Room;
  * @author PC
  */
 public class FXMLDocumentController implements Initializable {
-    
+
     @FXML
     private Button btn_sb_home, btn_sb_register_guest, btn_sb_remove_guest, btn_sb_hotel_status,
-            btn_registration_submit, btn_remove_submit,btn_home_roomhistory;
-    
+            btn_registration_submit, btn_remove_submit, btn_home_roomhistory;
+
     @FXML
     private Pane pane_home, pane_register_guest, pane_remove_guest, pane_hotel_status,
-            pane_hotelstatus_first,pane_hotelstatus_second,pane_hotelstatus_third,
-            pane_hotelstatus_fourth,pane_hotelstatus_fifth,sidebar_pane_color_home,
-            sidebar_pane_color_status,sidebar_pane_color_delguest,sidebar_pane_color_regguest;
-    
+            pane_hotelstatus_first, pane_hotelstatus_second, pane_hotelstatus_third,
+            pane_hotelstatus_fourth, pane_hotelstatus_fifth, sidebar_pane_color_home,
+            sidebar_pane_color_status, sidebar_pane_color_delguest, sidebar_pane_color_regguest;
+
     @FXML
     private ImageView hotel_status_first, hotel_status_second, hotel_status_third,
             hotel_status_fourth, hotel_status_fifth;
-               
+
     @FXML
     private TextField tf_registration_name, tf_registration_surname, tf_remove_name,
             tf_remove_surname;
-    
+
     @FXML
     private PieChart home_piechart;
-    
-    @FXML 
-    private Text home_text_freerooms,home_text_guesthistory,home_activeguests,text_sb_date,
-            text_homestatus_firstroom,text_homestatus_secondroom,text_homestatus_thirdroom,
-            text_homestatus_fourthroom,text_homestatus_fifthroom;
-    
+
+    @FXML
+    private Text home_text_freerooms, home_text_guesthistory, home_activeguests, text_sb_date,
+            text_homestatus_firstroom, text_homestatus_secondroom, text_homestatus_thirdroom,
+            text_homestatus_fourthroom, text_homestatus_fifthroom;
+
+    @FXML
+    private ScrollPane home_scrollpane;
+
     @FXML
     private ChoiceBox home_cb_roomnum;
-        
+
     private ArrayList<ImageView> hotelStatusPaneList;
     private Image ivRoomFree, ivRoomTaken;
-    private int freeRoomsNumber,freeRoomNumber;
+    private int freeRoomsNumber, freeRoomNumber;
     private Room room;
     private Guest guest;
     private GuestDAO guestDao;
     private RoomDAO roomDao;
-    
-   private void initChoiceBoxItems(){       
-       home_cb_roomnum.setItems(FXCollections.observableArrayList(1,2,3,4,5));
-       home_cb_roomnum.setValue(1);
-   }
-    
+
     @Override
-    public void initialize(URL url, ResourceBundle rb) {        
+    public void initialize(URL url, ResourceBundle rb) {
+        setRoomStatusImagesAndGatherArray(); //creates image = new image for room status and gathers array of rooms
+        home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL())); //Gets free room numbers
+        initAndSetPieChartData(5 - freeRoomsNumber, freeRoomsNumber); //Piechart at load
+        home_activeguests.setText(getActiveGuests()); //sets active guest number
+        highlightSidebar(1); //Highlight home on app start.
+        setDateToText(); //Sets date on the bottom pane
+        initChoiceBoxItems(); //Sets spinner from 1-5 for room history
+        initScrollPaneParameters(); //Sets scrollpane to panable and scrolable
+    }
+
+    //General methods
+    private void initChoiceBoxItems() {
+        home_cb_roomnum.setItems(FXCollections.observableArrayList(1, 2, 3, 4, 5));
+        home_cb_roomnum.setValue(1);
+    }
+
+    private void showAlert(Alert.AlertType alerType, String title, String message) {
+        Alert alert = new Alert(alerType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
+    }
+
+    private boolean textValidationForNameAndSurname(String guestName, String guestSurname) {
+        boolean status = true;
+        if (!Validation.isValidCredentials(guestName)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Name must only include A-Z(a-z) characters");
+            status = false;
+        }
+        if (!Validation.isValidCredentials(guestSurname)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Surname must only include A-Z(a-z) characters");
+            status = false;
+        }
+        return status;
+    }
+
+    private void initScrollPaneParameters() {
+        home_scrollpane.setContent(home_text_guesthistory);
+        home_scrollpane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        home_scrollpane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        home_scrollpane.setPannable(true);
+    }
+
+    private void setRoomStatusImagesAndGatherArray() {
         hotelStatusPaneList = new ArrayList<ImageView>();
         hotelStatusPaneList.add(hotel_status_first);
         hotelStatusPaneList.add(hotel_status_second);
         hotelStatusPaneList.add(hotel_status_third);
         hotelStatusPaneList.add(hotel_status_fourth);
         hotelStatusPaneList.add(hotel_status_fifth);
-        
-        try{
-           ivRoomFree = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\open_door.png"));
-           ivRoomTaken = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\closed_door.png"));
-        }catch(Exception ex){
+        try {
+            ivRoomFree = new Image(new FileInputStream(
+                    "C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\open_door.png"));
+            ivRoomTaken = new Image(new FileInputStream(
+                    "C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\closed_door.png"));
+        } catch (Exception ex) {
             ex.printStackTrace();
-        }           
-        home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL()));
-        home_text_guesthistory.setText(getRoomHistoryByNumber(3));
-        initAndSetPieChartData(5-freeRoomsNumber,freeRoomsNumber);
-        home_activeguests.setText(getActiveGuests()); //sets active guest number
-        highlightSidebar(1); //Highlight home on app start.
-        setDateToText(); //Sets date on the bottom pane
-        initChoiceBoxItems(); //Sets spinner from 1-5 for room history
-    }    
-   
+        }
+    }
+
+    private void initAndSetPieChartData(int roomsTaken, int freeRooms) {
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
+                new PieChart.Data("Occupied hotel rooms", roomsTaken),
+                new PieChart.Data("Free hotel rooms", freeRooms));
+        home_piechart.setData(pieChartData);
+        home_piechart.setLegendVisible(true);
+        home_piechart.setLegendSide(Side.LEFT);
+    }
+
+    private void setDateToText() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        Date date = new Date();
+        text_sb_date.setText(formatter.format(date));
+    }
+
+    private void highlightSidebar(int pos) {
+        switch (pos) {
+            case 2:
+                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                break;
+            case 3:
+                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                break;
+            case 4:
+                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                break;
+            default:
+                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
+                break;
+        }
+    }
+
+    //Button click methods
     @FXML
-    private void handleButtonActionHomeRoomHistory(ActionEvent event){
-        int selectedRoomNum = (int)home_cb_roomnum.getValue();
+    private void handleButtonActionHomeRoomHistory(ActionEvent event) {
+        int selectedRoomNum = (int) home_cb_roomnum.getValue();
         String roomNumHistory = "";
         guestDao = new GuestDAO();
         ObservableList<Guest> guestsList = FXCollections.observableArrayList();
         guestDao.getAllGuests(guestsList);
-        for(Guest guest: guestsList){
-            if(selectedRoomNum == guest.getRoomNum()){
-                roomNumHistory += guest.getName()+" "+guest.getSurname()+"\n";
+        for (Guest guest : guestsList) {
+            if (selectedRoomNum == guest.getRoomNum()) {
+                roomNumHistory += guest.getName() + " " + guest.getSurname() + "\n";
             }
         }
-        if(roomNumHistory.length() == 0){
+        if (roomNumHistory.length() == 0) {
             home_text_guesthistory.setText("No guest have lived in this room yet.");
-        }else{
+        } else {
             home_text_guesthistory.setText(roomNumHistory);
-        }        
-    }
-    
-    @FXML
-    private void handleButtonActionSidebar(ActionEvent event) {
-        if(event.getSource() == btn_sb_register_guest){
-            highlightSidebar(2);
-            pane_register_guest.toFront();        
-        }else if(event.getSource() == btn_sb_remove_guest){
-            highlightSidebar(3);
-            pane_remove_guest.toFront();            
-        }else if(event.getSource() == btn_sb_hotel_status){
-            highlightSidebar(4);
-            pane_hotel_status.toFront();           
-            hotelStatusFromSQL();
-            setOccupiedRoomGuestText();
-        }else{
-           highlightSidebar(1);
-           pane_home.toFront();
-           home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL()));
-           initAndSetPieChartData(5-freeRoomsNumber,freeRoomsNumber);
-           home_activeguests.setText(getActiveGuests());      
         }
     }
-    
+
+    @FXML
+    private void handleButtonActionSidebar(ActionEvent event) {
+        if (event.getSource() == btn_sb_register_guest) {
+            highlightSidebar(2);
+            pane_register_guest.toFront();
+        } else if (event.getSource() == btn_sb_remove_guest) {
+            highlightSidebar(3);
+            pane_remove_guest.toFront();
+        } else if (event.getSource() == btn_sb_hotel_status) {
+            highlightSidebar(4);
+            pane_hotel_status.toFront();
+            hotelStatusFromSQL();
+            setOccupiedRoomGuestText();
+        } else {
+            highlightSidebar(1);
+            pane_home.toFront();
+            home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL()));
+            initAndSetPieChartData(5 - freeRoomsNumber, freeRoomsNumber);
+            home_activeguests.setText(getActiveGuests());
+        }
+    }
+
     @FXML
     private void handleButtonActionRegistration(ActionEvent event) {
         //Validate textField data
@@ -161,14 +244,14 @@ public class FXMLDocumentController implements Initializable {
                 guest = new Guest(guestName, guestSurname, freeRoomNumber, true);
                 guestDao = new GuestDAO();
                 guestDao.addGuest(guest);
-                showAlert(Alert.AlertType.CONFIRMATION, "Success", String.format("Welcome, %s %s. \n Your room number is %s",guest.getName(),guest.getSurname(), freeRoomNumber));
+                showAlert(Alert.AlertType.CONFIRMATION, "Success", String.format(
+                        "Welcome, %s %s. \n Your room number is %s", guest.getName(), guest.getSurname(), freeRoomNumber));
             } else {
                 showAlert(Alert.AlertType.ERROR, "Failed", String.format("Sorry but there are no free rooms"));
             }
-        }   
-    }   
-    
-    //Checks if user is in database and removes it
+        }
+    }
+
     @FXML
     private void handleButtonActionRemoval(ActionEvent event) {
         String guestName = tf_remove_name.getText().toString();
@@ -182,140 +265,77 @@ public class FXMLDocumentController implements Initializable {
                 if (guest.getName().equals(guestName) && guest.getSurname().equals(guestSurname) && guest.isGuestActive() == true) {
                     roomDao.changeRoomAvailability(false, guest.getRoomNum());
                     guestDao.removeGuestFromRoom(guest);
-                    showAlert(Alert.AlertType.CONFIRMATION, "Success", String.format("Guest %s %s successfully removed",guest.getName(),guest.getSurname()));
+                    showAlert(Alert.AlertType.CONFIRMATION, "Success",
+                            String.format("Guest %s %s successfully removed", guest.getName(), guest.getSurname()));
                     break;
                 }
             }
-        }          
-    }
-    
-     private void highlightSidebar(int pos){       
-        switch(pos){
-            case 2:
-                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.AQUA,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                break;
-            case 3:
-                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.AQUA,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                break;
-            case 4:
-                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.AQUA,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                break;
-            default:
-                sidebar_pane_color_regguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_delguest.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_status.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY,CornerRadii.EMPTY, Insets.EMPTY)));
-                sidebar_pane_color_home.setBackground(new Background(new BackgroundFill(Color.AQUA,CornerRadii.EMPTY, Insets.EMPTY)));
-                break;
         }
     }
-    
-    private void showAlert(Alert.AlertType alerType, String title, String message){
-	Alert alert = new Alert(alerType);
-	alert.setTitle(title);
-	alert.setHeaderText(null);
-	alert.setContentText(message);
-	alert.show();
-    }
-    
+
+    //SQL methods
     //Checks free rooms in hotel
-    private int hotelStatusFromSQL(){
+    private int hotelStatusFromSQL() {
         int freeRooms = 5;
         roomDao = new RoomDAO();
-        ObservableList<Room> roomsList= FXCollections.observableArrayList();
-        roomDao.getAllRooms(roomsList);            
-        for(int i = 0;i<roomsList.size();i++){            
-            if(roomsList.get(i).isRoomTaken() == true){                
+        ObservableList<Room> roomsList = FXCollections.observableArrayList();
+        roomDao.getAllRooms(roomsList);
+        for (int i = 0; i < roomsList.size(); i++) {
+            if (roomsList.get(i).isRoomTaken() == true) {
                 hotelStatusPaneList.get(i).setImage(ivRoomTaken);
                 freeRooms = freeRooms - 1;
-            }else{             
-               hotelStatusPaneList.get(i).setImage(ivRoomFree);
+            } else {
+                hotelStatusPaneList.get(i).setImage(ivRoomFree);
             }
         }
         return freeRooms;
     }
-    
+
     //Return free room number
-    private int returnFreeRoomNumber(){        
+    private int returnFreeRoomNumber() {
         int freeRoomNumber = -1;
         roomDao = new RoomDAO();
-        ObservableList<Room> roomsList= FXCollections.observableArrayList();
-        roomDao.getAllRooms(roomsList);            
-        for(int i = 0;i<roomsList.size();i++){            
-            if(roomsList.get(i).isRoomTaken() == false){            
-                freeRoomNumber = i+1;
-                roomDao.changeRoomAvailability(true,freeRoomNumber);
+        ObservableList<Room> roomsList = FXCollections.observableArrayList();
+        roomDao.getAllRooms(roomsList);
+        for (int i = 0; i < roomsList.size(); i++) {
+            if (roomsList.get(i).isRoomTaken() == false) {
+                freeRoomNumber = i + 1;
+                roomDao.changeRoomAvailability(true, freeRoomNumber);
                 break;
             }
         }
         return freeRoomNumber;
     }
-    
-    private boolean textValidationForNameAndSurname(String guestName, String guestSurname){
-        boolean status = true;
-        if(!Validation.isValidCredentials(guestName)){
-            showAlert(Alert.AlertType.ERROR,"Error","Name must only include A-Z(a-z) characters");
-            status = false;
-        }
-        if(!Validation.isValidCredentials(guestSurname)){
-            showAlert(Alert.AlertType.ERROR,"Error","Surname must only include A-Z(a-z) characters");
-            status = false;
-        }
-        return status;
-    }
-    
-    private String getRoomHistoryByNumber(int number){
-       String history = "";
-        ObservableList<Guest> guestHistory= FXCollections.observableArrayList();
+
+    private String getRoomHistoryByNumber(int number) {
+        String history = "";
+        ObservableList<Guest> guestHistory = FXCollections.observableArrayList();
         guestDao = new GuestDAO();
         guestDao.getAllGuests(guestHistory);
-        for(Guest guest: guestHistory){
-            if(guest.getRoomNum()== number){
-                history += guest.getName()+" "+guest.getSurname()+"\n";
-            }        
+        for (Guest guest : guestHistory) {
+            if (guest.getRoomNum() == number) {
+                history += guest.getName() + " " + guest.getSurname() + "\n";
+            }
         }
         return history;
     }
-    
-    private void initAndSetPieChartData(int roomsTaken, int freeRooms){
-        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList( 
-            new PieChart.Data("Occupied hotel rooms", roomsTaken), 
-            new PieChart.Data("Free hotel rooms", freeRooms));             
-        home_piechart.setData(pieChartData);
-        home_piechart.setLegendVisible(true);
-        home_piechart.setLegendSide(Side.LEFT);
-    }
-    
-    private String getActiveGuests(){
+
+    private String getActiveGuests() {
         String activeGuests = "";
         guestDao = new GuestDAO();
-        ObservableList<Guest> guestsList= FXCollections.observableArrayList();
+        ObservableList<Guest> guestsList = FXCollections.observableArrayList();
         guestDao.getAllGuests(guestsList);
-        for(Guest guest: guestsList){            
-            if(guest.isGuestActive()==true){
-               activeGuests += guest.getName()+" "+guest.getSurname()+"\n";
+        for (Guest guest : guestsList) {
+            if (guest.isGuestActive() == true) {
+                activeGuests += guest.getName() + " " + guest.getSurname() + "\n";
             }
         }
-        if(activeGuests.length()==0){
+        if (activeGuests.length() == 0) {
             activeGuests += "No active guests right now";
         }
         return activeGuests;
     }
-    
-    private void setDateToText(){
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = new Date();
-        text_sb_date.setText(formatter.format(date));
-    }
-    
+
     private void setOccupiedRoomGuestText() {
         guestDao = new GuestDAO();
         roomDao = new RoomDAO();
@@ -367,10 +387,5 @@ public class FXMLDocumentController implements Initializable {
 
         }
     }
-    
- 
-}
-   
-    
-    
 
+}
