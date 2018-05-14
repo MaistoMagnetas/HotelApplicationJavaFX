@@ -2,6 +2,7 @@
 
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -30,7 +31,7 @@
                   <Font name="Humnst777 BT Roman" size="14.0" />
                </font>
             </Button>
-            <Button fx:id="btn_sb_hotel_status" layoutX="4.0" layoutY="277.0" mnemonicParsing="false" onAction="#handleButtonActionSidebar" prefHeight="47.0" prefWidth="200.0" style="-fx-background-color: #464866; -fx-text-fill: #FFF;" text="Hotel status">
+            <Button fx:id="btn_sb_hotel_status" layoutX="4.0" layoutY="277.0" mnemonicParsing="false" onAction="#handleButtonActionSidebar" prefHeight="47.0" prefWidth="200.0" style="-fx-background-color: #464866; -fx-text-fill: #FFF;" text="Room status">
                <font>
                   <Font name="Humnst777 BT Roman" size="14.0" />
                </font>
@@ -52,36 +53,44 @@
       </AnchorPane>
       <AnchorPane layoutX="200.0" prefHeight="430.0" prefWidth="501.0" style="-fx-background-color: #155557;">
          <children>
-            <Pane fx:id="pane_register_guest" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
+            <Pane layoutY="346.0" prefHeight="84.0" prefWidth="518.0" style="-fx-background-color: #192231;">
                <children>
-                  <Text layoutX="102.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guest name:">
-                     <font>
-                        <Font name="Constantia Bold" size="18.0" />
-                     </font>
-                  </Text>
-                  <TextField fx:id="tf_registration_name" layoutX="242.0" layoutY="172.0" promptText="Enter your name" />
-                  <Text layoutX="88.0" layoutY="238.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guest surname:">
-                     <font>
-                        <Font name="Constantia Bold" size="18.0" />
-                     </font>
-                  </Text>
-                  <TextField fx:id="tf_registration_surname" layoutX="242.0" layoutY="221.0" promptText="Enter guest surname" />
-                  <Button fx:id="btn_registration_submit" layoutX="83.0" layoutY="281.0" mnemonicParsing="false" onAction="#handleButtonActionRegistration" prefHeight="25.0" prefWidth="313.0" text="Submit" />
-                  <Label layoutX="147.0" layoutY="52.0" prefHeight="99.0" prefWidth="224.0" text="Register guest">
+                  <Text fill="WHITE" layoutX="402.0" layoutY="65.0" strokeType="OUTSIDE" strokeWidth="0.0" text="©NoMagicHotel" />
+                  <Text fx:id="text_sb_date" fill="WHITE" layoutX="14.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="85.99999760477886" />
+               </children>
+            </Pane>
+            <Pane fx:id="pane_register_guest" prefHeight="347.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
+               <children>
+                  <AnchorPane layoutX="14.0" layoutY="133.0" opacity="0.24" prefHeight="200.0" prefWidth="490.0" style="-fx-background-color: #FFF; -fx-border-radius: 25; -fx-border-color: #555; -fx-border-image-width: 5; -fx-border-style: solid;" />
+                  <Label layoutX="158.0" layoutY="14.0" prefHeight="53.0" prefWidth="224.0" text="Register guest">
                      <font>
                         <Font name="System Italic" size="36.0" />
                      </font>
                   </Label>
+                  <Text layoutX="84.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guest name:">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="tf_registration_name" layoutX="266.0" layoutY="185.0" promptText="Enter guest name" />
+                  <Text layoutX="84.0" layoutY="259.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guest surname:">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="tf_registration_surname" layoutX="266.0" layoutY="238.0" promptText="Enter guest surname" />
+                  <Button fx:id="btn_registration_submit" layoutX="84.0" layoutY="287.0" mnemonicParsing="false" onAction="#handleButtonActionRegistration" prefHeight="32.0" prefWidth="336.0" style="-fx-background-color: #3c7fb1; -fx-text-fill: #FFF;" text="Submit" />
                </children></Pane>
-            <Pane fx:id="pane_remove_guest" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
+            <Pane fx:id="pane_remove_guest" prefHeight="347.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
                <children>
-                  <Label layoutX="151.0" layoutY="98.0" text="Remove guest">
+                  <AnchorPane layoutX="14.0" layoutY="133.0" opacity="0.24" prefHeight="200.0" prefWidth="490.0" style="-fx-background-color: #FFF; -fx-border-radius: 25; -fx-border-color: #555; -fx-border-image-width: 5; -fx-border-style: solid;" />
+                  <Label layoutX="158.0" layoutY="14.0" text="Remove guest">
                      <font>
                         <Font name="System Italic" size="36.0" />
                      </font>
                   </Label>
                   <TextField fx:id="tf_remove_name" layoutX="266.0" layoutY="185.0" promptText="Enter guest name" />
-                  <Text layoutX="100.0" layoutY="206.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guest name:">
+                  <Text layoutX="84.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guest name:">
                      <font>
                         <Font size="24.0" />
                      </font>
@@ -92,45 +101,59 @@
                      </font>
                   </Text>
                   <TextField fx:id="tf_remove_surname" layoutX="266.0" layoutY="238.0" promptText="Enter guest surname" />
-                  <Button fx:id="btn_remove_submit" layoutX="84.0" layoutY="295.0" mnemonicParsing="false" onAction="#handleButtonActionRemoval" prefHeight="32.0" prefWidth="336.0" text="Submit" />
-               </children></Pane>
-            <Pane fx:id="pane_hotel_status" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
+                  <Button fx:id="btn_remove_submit" layoutX="84.0" layoutY="287.0" mnemonicParsing="false" onAction="#handleButtonActionRemoval" prefHeight="32.0" prefWidth="336.0" style="-fx-background-color: #3c7fb1; -fx-text-fill: #FFF;" text="Submit" />
+               </children>
+            </Pane>
+            <Pane fx:id="pane_hotel_status" prefHeight="347.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
                <children>
-                  <Text fill="WHITE" layoutX="223.0" layoutY="38.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hotel status" />
-                  <Pane fx:id="pane_hotelstatus_first" layoutX="14.0" layoutY="74.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #FFF;">
+                  <Text layoutX="223.0" layoutY="26.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="0.0" text="Hotel status" />
+                  <Pane fx:id="pane_hotelstatus_first" layoutX="22.0" layoutY="41.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #708090;">
                      <children>
-                        <ImageView fx:id="hotel_status_first" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="hotel_status_first" fitHeight="84.0" fitWidth="86.0" layoutX="23.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true" />
+                        <Text layoutX="44.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Room 1" />
+                        <Text fx:id="text_homestatus_firstroom" layoutX="-1.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="134.00000460436559" />
                      </children></Pane>
-                  <Pane fx:id="pane_hotelstatus_second" layoutX="192.0" layoutY="74.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #ffa;">
+                  <Pane fx:id="pane_hotelstatus_second" layoutX="192.0" layoutY="41.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #708090;">
                      <children>
-                        <ImageView fx:id="hotel_status_second" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                        <Text layoutX="44.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Room 2" />
+                        <ImageView fx:id="hotel_status_second" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true" />
+                        <Text fx:id="text_homestatus_secondroom" layoutX="-1.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="134.00000627632244" />
                      </children></Pane>
-                  <Pane fx:id="pane_hotelstatus_third" layoutX="370.0" layoutY="74.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #dda;">
+                  <Pane fx:id="pane_hotelstatus_third" layoutX="362.0" layoutY="41.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #708090;">
                      <children>
-                        <ImageView fx:id="hotel_status_third" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="hotel_status_third" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true" />
+                        <Text layoutX="44.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Room 3" />
+                        <Text fx:id="text_homestatus_thirdroom" layoutX="-9.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="151.59824336792553" />
                      </children></Pane>
-                  <Pane fx:id="pane_hotelstatus_fourth" layoutX="89.0" layoutY="249.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #fad;">
+                  <Pane fx:id="pane_hotelstatus_fourth" layoutX="89.0" layoutY="192.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #708090;">
                      <children>
-                        <ImageView fx:id="hotel_status_fourth" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="hotel_status_fourth" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true" />
+                        <Text layoutX="44.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Room 4" />
+                        <Text fx:id="text_homestatus_fourthroom" layoutX="1.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="131.70702955276283" />
                      </children></Pane>
-                  <Pane fx:id="pane_hotelstatus_fifth" layoutX="295.0" layoutY="249.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #fef;">
+                  <Pane fx:id="pane_hotelstatus_fifth" layoutX="295.0" layoutY="192.0" prefHeight="141.0" prefWidth="134.0" style="-fx-background-color: #708090;">
                      <children>
-                        <ImageView fx:id="hotel_status_fifth" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="hotel_status_fifth" fitHeight="84.0" fitWidth="86.0" layoutX="24.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true" />
+                        <Text layoutX="44.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Room 5" />
+                        <Text fx:id="text_homestatus_fifthroom" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="134.00000627632244" />
                      </children></Pane>
                </children></Pane>
-            <Pane fx:id="pane_home" prefHeight="430.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
+            <Pane fx:id="pane_home" prefHeight="347.0" prefWidth="518.0" style="-fx-background-color: #7584AD;">
                <children>
-                  <Text layoutX="-9.0" layoutY="214.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Free rooms in hotel:" textAlignment="CENTER" wrappingWidth="192.9830722808838" />
-                  <Text fx:id="home_text_freerooms" layoutX="168.0" layoutY="213.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="30.999994377361872" />
-                  <Text layoutX="28.0" layoutY="259.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guests history:" />
-                  <Text fx:id="home_text_guesthistory" layoutX="128.0" layoutY="258.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="23.0" />
+                  <Text layoutX="20.0" layoutY="194.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Free rooms in hotel:" textAlignment="CENTER" wrappingWidth="131.70702955276283" />
+                  <Text fx:id="home_text_freerooms" layoutX="161.0" layoutY="193.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="30.999994377361872" />
+                  <Text layoutX="27.0" layoutY="221.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Guests history:" />
+                  <Text fx:id="home_text_guesthistory" layoutX="27.0" layoutY="259.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="463.0000305175781" />
                   <PieChart fx:id="home_piechart" animated="false" layoutX="20.0" layoutY="23.0" legendSide="LEFT" prefHeight="141.0" prefWidth="216.0" style="-fx-background-color: #AED1D6;" title="Hotel room status" />
                   <Pane layoutX="282.0" layoutY="23.0" prefHeight="150.0" prefWidth="216.0" style="-fx-background-color: #AED1D6;">
                      <children>
                         <Text layoutX="8.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Active guests" textAlignment="CENTER" wrappingWidth="199.99999617166395" />
-                        <Text fx:id="home_activeguests" layoutX="14.0" layoutY="47.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="106.65526892405524" />
+                        <Text fx:id="home_activeguests" layoutX="9.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="199.99999617166395" />
                      </children>
                   </Pane>
+                  <Button fx:id="btn_home_roomhistory" layoutX="313.0" layoutY="201.0" mnemonicParsing="false" onAction="#handleButtonActionHomeRoomHistory" prefHeight="32.0" prefWidth="178.0" style="-fx-background-color: #3c7fb1;" text="Submit" />
+                  <ChoiceBox fx:id="home_cb_roomnum" layoutX="143.0" layoutY="203.0" prefWidth="150.0">            
+                    </ChoiceBox>
                </children>
             </Pane>
          </children>

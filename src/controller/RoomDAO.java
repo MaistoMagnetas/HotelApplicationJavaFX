@@ -21,13 +21,12 @@ public class RoomDAO {
     
     //Could be used for later expansion
     public void addRoom(Room room){
-        String sql = "INSERT INTO `rooms`(`id`, `status`, `history`) VALUES (?,?,?)";
+        String sql = "INSERT INTO `rooms`(`id`, `status`) VALUES (?,?)";
         try{
             Connection myConnection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/nomagichotel", "root", "");
             PreparedStatement addRoomStatement = (PreparedStatement) myConnection.prepareStatement(sql);
             addRoomStatement.setInt(1, room.getId());
             addRoomStatement.setBoolean(2, room.isRoomTaken());
-            addRoomStatement.setString(3,room.getHistory());
             addRoomStatement.execute();
             addRoomStatement.close();
         }catch(Exception e){
@@ -59,8 +58,7 @@ public class RoomDAO {
             while (resultSet.next()) {
                 roomsList.add(new Room(
                         resultSet.getInt("id"),
-                        resultSet.getBoolean("status"),
-                        resultSet.getString("history")));
+                        resultSet.getBoolean("status")));
             }
         }catch(Exception e){
             e.printStackTrace();

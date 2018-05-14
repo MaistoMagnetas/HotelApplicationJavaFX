@@ -10,7 +10,9 @@ import controller.RoomDAO;
 import controller.Validation;
 import java.io.FileInputStream;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +24,7 @@ import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -42,7 +45,7 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private Button btn_sb_home, btn_sb_register_guest, btn_sb_remove_guest, btn_sb_hotel_status,
-            btn_registration_submit, btn_remove_submit;
+            btn_registration_submit, btn_remove_submit,btn_home_roomhistory;
     
     @FXML
     private Pane pane_home, pane_register_guest, pane_remove_guest, pane_hotel_status,
@@ -62,7 +65,12 @@ public class FXMLDocumentController implements Initializable {
     private PieChart home_piechart;
     
     @FXML 
-    private Text home_text_freerooms,home_text_guesthistory,home_activeguests;
+    private Text home_text_freerooms,home_text_guesthistory,home_activeguests,text_sb_date,
+            text_homestatus_firstroom,text_homestatus_secondroom,text_homestatus_thirdroom,
+            text_homestatus_fourthroom,text_homestatus_fifthroom;
+    
+    @FXML
+    private ChoiceBox home_cb_roomnum;
         
     private ArrayList<ImageView> hotelStatusPaneList;
     private Image ivRoomFree, ivRoomTaken;
@@ -71,7 +79,54 @@ public class FXMLDocumentController implements Initializable {
     private Guest guest;
     private GuestDAO guestDao;
     private RoomDAO roomDao;
+    
+   private void initChoiceBoxItems(){       
+       home_cb_roomnum.setItems(FXCollections.observableArrayList(1,2,3,4,5));
+       home_cb_roomnum.setValue(1);
+   }
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {        
+        hotelStatusPaneList = new ArrayList<ImageView>();
+        hotelStatusPaneList.add(hotel_status_first);
+        hotelStatusPaneList.add(hotel_status_second);
+        hotelStatusPaneList.add(hotel_status_third);
+        hotelStatusPaneList.add(hotel_status_fourth);
+        hotelStatusPaneList.add(hotel_status_fifth);
+        
+        try{
+           ivRoomFree = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\open_door.png"));
+           ivRoomTaken = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\closed_door.png"));
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }           
+        home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL()));
+        home_text_guesthistory.setText(getRoomHistoryByNumber(3));
+        initAndSetPieChartData(5-freeRoomsNumber,freeRoomsNumber);
+        home_activeguests.setText(getActiveGuests()); //sets active guest number
+        highlightSidebar(1); //Highlight home on app start.
+        setDateToText(); //Sets date on the bottom pane
+        initChoiceBoxItems(); //Sets spinner from 1-5 for room history
+    }    
    
+    @FXML
+    private void handleButtonActionHomeRoomHistory(ActionEvent event){
+        int selectedRoomNum = (int)home_cb_roomnum.getValue();
+        String roomNumHistory = "";
+        guestDao = new GuestDAO();
+        ObservableList<Guest> guestsList = FXCollections.observableArrayList();
+        guestDao.getAllGuests(guestsList);
+        for(Guest guest: guestsList){
+            if(selectedRoomNum == guest.getRoomNum()){
+                roomNumHistory += guest.getName()+" "+guest.getSurname()+"\n";
+            }
+        }
+        if(roomNumHistory.length() == 0){
+            home_text_guesthistory.setText("No guest have lived in this room yet.");
+        }else{
+            home_text_guesthistory.setText(roomNumHistory);
+        }        
+    }
     
     @FXML
     private void handleButtonActionSidebar(ActionEvent event) {
@@ -85,6 +140,7 @@ public class FXMLDocumentController implements Initializable {
             highlightSidebar(4);
             pane_hotel_status.toFront();           
             hotelStatusFromSQL();
+            setOccupiedRoomGuestText();
         }else{
            highlightSidebar(1);
            pane_home.toFront();
@@ -99,66 +155,40 @@ public class FXMLDocumentController implements Initializable {
         //Validate textField data
         String guestName = tf_registration_name.getText().toString();
         String guestSurname = tf_registration_surname.getText().toString();
-        textValidationForNameAndSurname(guestName,guestSurname);
-        
-        freeRoomNumber = returnFreeRoomNumber();
-        if(freeRoomNumber>0 && freeRoomNumber<=5){
-            guest = new Guest(guestName,guestSurname,freeRoomNumber,true);
-            guestDao = new GuestDAO();
-            guestDao.addGuest(guest);
-            showAlert(Alert.AlertType.CONFIRMATION,"Success",String.format("Your room number is %s",freeRoomNumber));
-        }else{
-            showAlert(Alert.AlertType.ERROR,"Failed",String.format("Sorry but there are no free rooms"));
-        }               
+        if (textValidationForNameAndSurname(guestName, guestSurname)) {
+            freeRoomNumber = returnFreeRoomNumber();
+            if (freeRoomNumber > 0 && freeRoomNumber <= 5) {
+                guest = new Guest(guestName, guestSurname, freeRoomNumber, true);
+                guestDao = new GuestDAO();
+                guestDao.addGuest(guest);
+                showAlert(Alert.AlertType.CONFIRMATION, "Success", String.format("Welcome, %s %s. \n Your room number is %s",guest.getName(),guest.getSurname(), freeRoomNumber));
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Failed", String.format("Sorry but there are no free rooms"));
+            }
+        }   
     }   
     
     //Checks if user is in database and removes it
     @FXML
     private void handleButtonActionRemoval(ActionEvent event) {
         String guestName = tf_remove_name.getText().toString();
-        String guestSurname = tf_remove_surname.getText().toString();        
-        textValidationForNameAndSurname(guestName,guestSurname);        
-        guestDao = new GuestDAO();
-        roomDao = new RoomDAO();
-        ObservableList<Guest> guestsList= FXCollections.observableArrayList();
-        guestDao.getAllGuests(guestsList);
-        for(Guest guest: guestsList){            
-            if(guest.getName().equals(guestName) && guest.getSurname().equals(guestSurname) && guest.isGuestActive()==true){
-                roomDao.changeRoomAvailability(false,guest.getRoomNum());
-                guestDao.removeGuestFromRoom(guest);                
-                showAlert(Alert.AlertType.CONFIRMATION,"Success",String.format("Guest %s %s successfully removed"));
-                break;
+        String guestSurname = tf_remove_surname.getText().toString();
+        if (textValidationForNameAndSurname(guestName, guestSurname)) {
+            guestDao = new GuestDAO();
+            roomDao = new RoomDAO();
+            ObservableList<Guest> guestsList = FXCollections.observableArrayList();
+            guestDao.getAllGuests(guestsList);
+            for (Guest guest : guestsList) {
+                if (guest.getName().equals(guestName) && guest.getSurname().equals(guestSurname) && guest.isGuestActive() == true) {
+                    roomDao.changeRoomAvailability(false, guest.getRoomNum());
+                    guestDao.removeGuestFromRoom(guest);
+                    showAlert(Alert.AlertType.CONFIRMATION, "Success", String.format("Guest %s %s successfully removed",guest.getName(),guest.getSurname()));
+                    break;
+                }
             }
-        }        
-        System.out.println(guestName);
-        System.out.println(guestSurname);
+        }          
     }
     
-       
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {        
-        hotelStatusPaneList = new ArrayList<ImageView>();
-        hotelStatusPaneList.add(hotel_status_first);
-        hotelStatusPaneList.add(hotel_status_second);
-        hotelStatusPaneList.add(hotel_status_third);
-        hotelStatusPaneList.add(hotel_status_fourth);
-        hotelStatusPaneList.add(hotel_status_fifth);
-        
-        try{
-           ivRoomFree = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\green.png"));
-           ivRoomTaken = new Image(new FileInputStream("C:\\Users\\PC\\\\Documents\\NetBeansProjects\\NoMagicHotel\\src\\view\\red.png"));
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }           
-        home_text_freerooms.setText(String.valueOf(freeRoomsNumber = hotelStatusFromSQL()));
-        home_text_guesthistory.setText(getRoomHistoryByNumber(3));
-        initAndSetPieChartData(5-freeRoomsNumber,freeRoomsNumber);
-        home_activeguests.setText(getActiveGuests());
-        highlightSidebar(1);
-    }    
-   
-            
-
      private void highlightSidebar(int pos){       
         switch(pos){
             case 2:
@@ -229,24 +259,28 @@ public class FXMLDocumentController implements Initializable {
         return freeRoomNumber;
     }
     
-    private void textValidationForNameAndSurname(String guestName, String guestSurname){
+    private boolean textValidationForNameAndSurname(String guestName, String guestSurname){
+        boolean status = true;
         if(!Validation.isValidCredentials(guestName)){
             showAlert(Alert.AlertType.ERROR,"Error","Name must only include A-Z(a-z) characters");
-            return;
+            status = false;
         }
         if(!Validation.isValidCredentials(guestSurname)){
             showAlert(Alert.AlertType.ERROR,"Error","Surname must only include A-Z(a-z) characters");
-            return;
+            status = false;
         }
+        return status;
     }
     
     private String getRoomHistoryByNumber(int number){
-        String history = "";
+       String history = "";
         ObservableList<Guest> guestHistory= FXCollections.observableArrayList();
         guestDao = new GuestDAO();
-        guestDao.getGuestHistoryByRoomNumber(guestHistory, number);
-        for(int i =0;i<guestHistory.size();i++){
-            history += guestHistory.get(i).getName()+" "+guestHistory.get(i).getSurname()+"\n";
+        guestDao.getAllGuests(guestHistory);
+        for(Guest guest: guestHistory){
+            if(guest.getRoomNum()== number){
+                history += guest.getName()+" "+guest.getSurname()+"\n";
+            }        
         }
         return history;
     }
@@ -270,10 +304,73 @@ public class FXMLDocumentController implements Initializable {
                activeGuests += guest.getName()+" "+guest.getSurname()+"\n";
             }
         }
+        if(activeGuests.length()==0){
+            activeGuests += "No active guests right now";
+        }
         return activeGuests;
     }
     
+    private void setDateToText(){
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        Date date = new Date();
+        text_sb_date.setText(formatter.format(date));
+    }
+    
+    private void setOccupiedRoomGuestText() {
+        guestDao = new GuestDAO();
+        roomDao = new RoomDAO();
+        ObservableList<Guest> guestsList = FXCollections.observableArrayList();
+        ObservableList<Room> roomsList = FXCollections.observableArrayList();
+        guestDao.getAllGuests(guestsList);
+        roomDao.getAllRooms(roomsList);
+        for (Guest guest : guestsList) {
+            if (guest.isGuestActive() == true) {
+                switch (guest.getRoomNum()) {
+                    case 1:
+                        text_homestatus_firstroom.setText(guest.getName() + " " + guest.getSurname());
+                        break;
+                    case 2:
+                        text_homestatus_secondroom.setText(guest.getName() + " " + guest.getSurname());
+                        break;
+                    case 3:
+                        text_homestatus_thirdroom.setText(guest.getName() + " " + guest.getSurname());
+                        break;
+                    case 4:
+                        text_homestatus_fourthroom.setText(guest.getName() + " " + guest.getSurname());
+                        break;
+                    case 5:
+                        text_homestatus_fifthroom.setText(guest.getName() + " " + guest.getSurname());
+                        break;
+                }
+            }
+            for (Room room : roomsList) {
+                if (room.isRoomTaken() == false) {
+                    switch (room.getId()) {
+                        case 1:
+                            text_homestatus_firstroom.setText("Room is free");
+                            break;
+                        case 2:
+                            text_homestatus_secondroom.setText("Room is free");
+                            break;
+                        case 3:
+                            text_homestatus_thirdroom.setText("Room is free");
+                            break;
+                        case 4:
+                            text_homestatus_fourthroom.setText("Room is free");
+                            break;
+                        case 5:
+                            text_homestatus_fifthroom.setText("Room is free");
+                            break;
+                    }
+                }
+            }
+
+        }
+    }
+    
+ 
+}
    
     
     
-}
+

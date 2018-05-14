@@ -68,29 +68,7 @@ public class GuestDAO {
         }catch(Exception e){
             e.printStackTrace();
         }
-    }
-        
-    public void getGuestHistoryByRoomNumber(ObservableList<Guest> guestsList, int number){
-        String sql = "SELECT * FROM `guests` WHERE `roomnum` = ?";
-        try{
-            Connection myConnection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/nomagichotel", "root", "");
-            PreparedStatement guestHistoryStatement = (PreparedStatement) myConnection.prepareStatement(sql);
-            guestHistoryStatement.setInt(1,number);
-            ResultSet resultSet = guestHistoryStatement.executeQuery();
-            while (resultSet.next()) {
-                guestsList.add(new Guest(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("surname"),
-                        resultSet.getInt("roomnum"),
-                        resultSet.getBoolean("gueststatus")));
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-    
-        
+    }              
 }
         
     
