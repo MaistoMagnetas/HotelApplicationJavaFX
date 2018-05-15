@@ -37,7 +37,7 @@
                   <Font name="Humnst777 BT Roman" size="14.0" />
                </font>
             </Button>
-            <AnchorPane prefHeight="430.0" prefWidth="23.0" style="-fx-background-color: #708090;">
+            <AnchorPane prefHeight="430.0" prefWidth="23.0" style="-fx-background-color: #3e4444;">
                <children>
                   <Pane fx:id="sidebar_pane_color_home" layoutY="115.0" prefHeight="47.0" prefWidth="23.0" />
                   <Pane fx:id="sidebar_pane_color_regguest" layoutX="1.0" layoutY="168.0" prefHeight="47.0" prefWidth="23.0" />
