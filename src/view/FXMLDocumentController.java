@@ -116,8 +116,7 @@ public class FXMLDocumentController implements Initializable {
         if (!Validation.isValidCredentials(guestName)) {
             showAlert(Alert.AlertType.ERROR, "Error", "Name must only include A-Z(a-z) characters and cant be blank");
             status = false;
-        }
-        if (!Validation.isValidCredentials(guestSurname)) {
+        }else if (!Validation.isValidCredentials(guestSurname)) {
             showAlert(Alert.AlertType.ERROR, "Error", "Surname must only include A-Z(a-z) characters ant cant be blank");
             status = false;
         }
