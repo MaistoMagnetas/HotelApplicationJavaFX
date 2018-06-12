@@ -101,17 +101,13 @@ public class FXMLDocumentController implements Initializable {
         setDateToText(); //Sets date on the bottom pane
         initChoiceBoxItems(); //Sets spinner from 1-5 for room history
         initScrollPaneParameters(); //Sets scrollpane to panable and scrolable
-        initHotelStatusText();//SetsHOtelStatus Text to rooms are free
-        
-        
+        initHotelStatusText();//SetsHOtelStatus Text to rooms are free    
     }
 
     /**
      * ***General methods****
      */
-    
-    
-    
+
     //Spinner-choicebox items
     private void initChoiceBoxItems() {
         home_cb_roomnum.setItems(FXCollections.observableArrayList(1, 2, 3, 4, 5));
@@ -218,23 +214,6 @@ public class FXMLDocumentController implements Initializable {
                 break;
         }
     }
-
-    //Reusable code part-guest
-//    private ObservableList<Guest> initGuestDao() {
-//        guestDao = new GuestDAO();
-//        ObservableList<Guest> guestsList = FXCollections.observableArrayList();
-//        guestDao.getAllGuests(guestsList);
-//        return guestsList;
-//    }
-
-    //Reusable code part-room
-//    private ObservableList<Room> initRoomDao() {
-//        roomDao = new RoomDAO();
-//        ObservableList<Room> roomsList = FXCollections.observableArrayList();
-//        roomDao.getAllRooms(roomsList);
-//        return roomsList;
-//    }
-
     /**
      * ***Button click methods****
      */
@@ -326,7 +305,6 @@ public class FXMLDocumentController implements Initializable {
     //Checks free room in hotel
     private int hotelRoomStatus() {
         int freeRooms = 5;
-//        ObservableList<Room> roomsList = initRoomDao();
         for (int i = 0; i < roomsList.size(); i++) {
             if (roomsList.get(i).isRoomTaken() == true) {
                 hotelStatusPaneList.get(i).setImage(ivRoomTaken);
@@ -340,13 +318,10 @@ public class FXMLDocumentController implements Initializable {
 
     //Counts free rooms
     private int returnFreeRoomNumber() {
-        int freeRoomNumber = -1;
-        //ObservableList<Room> roomsList = roomDao.getHotelRooms();
         for (int i = 0; i < roomsList.size(); i++) {
             if (roomsList.get(i).isRoomTaken() == false) {
                 freeRoomNumber = i + 1;
                 roomsList.get(i).setStatus(true);
-                //roomDao.changeRoomAvailability(true, freeRoomNumber, roomsList);
                 break;
             }
         }
