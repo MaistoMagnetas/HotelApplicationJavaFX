@@ -101,13 +101,17 @@ public class FXMLDocumentController implements Initializable {
         setDateToText(); //Sets date on the bottom pane
         initChoiceBoxItems(); //Sets spinner from 1-5 for room history
         initScrollPaneParameters(); //Sets scrollpane to panable and scrolable
-        initHotelStatusText();//SetsHOtelStatus Text to rooms are free    
+        initHotelStatusText();//SetsHOtelStatus Text to rooms are free
+        
+        
     }
 
     /**
      * ***General methods****
      */
-
+    
+    
+    
     //Spinner-choicebox items
     private void initChoiceBoxItems() {
         home_cb_roomnum.setItems(FXCollections.observableArrayList(1, 2, 3, 4, 5));
@@ -145,14 +149,14 @@ public class FXMLDocumentController implements Initializable {
         home_scrollpane.setPannable(true);
     }
     
-    private void initHotelStatusText(){
+    private void initHotelStatusText(){        
         text_homestatus_firstroom.setText("Room is free");                       
         text_homestatus_secondroom.setText("Room is free");
         text_homestatus_thirdroom.setText("Room is free");
         text_homestatus_fourthroom.setText("Room is free");
         text_homestatus_fifthroom.setText("Room is free");                           
     }
-    
+       
     private void setRoomStatusImagesAndGatherArray() {//Hotel status activity. Open/CLosed door images
         hotelStatusPaneList = new ArrayList<ImageView>();
         hotelStatusPaneList.add(hotel_status_first);
@@ -214,9 +218,8 @@ public class FXMLDocumentController implements Initializable {
                 break;
         }
     }
-    /**
-     * ***Button click methods****
-     */
+
+
     @FXML
     private void handleButtonActionHomeRoomHistory(ActionEvent event) {
         int selectedRoomNum = (int) home_cb_roomnum.getValue();
@@ -269,7 +272,7 @@ public class FXMLDocumentController implements Initializable {
                 guest = new Guest(guestName, guestSurname, freeRoomNumber, true);
                 guestDao = new GuestDAO();
                 guestDao.addGuest(guest,guestsList); //Register guest
-                guestDao.addGuest(guest, guestsHistoryList); //Add guest to guest history
+                guestDao.addGuestHistory(guest, guestsHistoryList); //Add guest to guest history
                 showAlert(Alert.AlertType.CONFIRMATION,
                         "Success",String.format("Guest %s %s successfully registered at room %d",guest.getName(),guest.getSurname(),freeRoomNumber));                              
             } else {
@@ -305,12 +308,13 @@ public class FXMLDocumentController implements Initializable {
     //Checks free room in hotel
     private int hotelRoomStatus() {
         int freeRooms = 5;
+//        ObservableList<Room> roomsList = initRoomDao();
         for (int i = 0; i < roomsList.size(); i++) {
             if (roomsList.get(i).isRoomTaken() == true) {
                 hotelStatusPaneList.get(i).setImage(ivRoomTaken);
                 freeRooms = freeRooms - 1;
             } else {
-                hotelStatusPaneList.get(i).setImage(ivRoomFree);
+                hotelStatusPaneList.get(i).setImage(ivRoomFree);                
             }
         }
         return freeRooms;
@@ -318,10 +322,13 @@ public class FXMLDocumentController implements Initializable {
 
     //Counts free rooms
     private int returnFreeRoomNumber() {
+        int freeRoomNumber = -1;
+        //ObservableList<Room> roomsList = roomDao.getHotelRooms();
         for (int i = 0; i < roomsList.size(); i++) {
             if (roomsList.get(i).isRoomTaken() == false) {
                 freeRoomNumber = i + 1;
                 roomsList.get(i).setStatus(true);
+                //roomDao.changeRoomAvailability(true, freeRoomNumber, roomsList);
                 break;
             }
         }
@@ -352,26 +359,6 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private void setOccupiedRoomGuestText() {
-        for (Guest guest : guestsList) {
-            if (guest.isGuestActive() == true) {
-                switch (guest.getRoomNum()) {
-                    case 1:
-                        text_homestatus_firstroom.setText(guest.getName() + " " + guest.getSurname());
-                        break;
-                    case 2:
-                        text_homestatus_secondroom.setText(guest.getName() + " " + guest.getSurname());
-                        break;
-                    case 3:
-                        text_homestatus_thirdroom.setText(guest.getName() + " " + guest.getSurname());
-                        break;
-                    case 4:
-                        text_homestatus_fourthroom.setText(guest.getName() + " " + guest.getSurname());
-                        break;
-                    case 5:
-                        text_homestatus_fifthroom.setText(guest.getName() + " " + guest.getSurname());
-                        break;
-                }
-            }
             for (Room room : roomsList) {
                 if (room.isRoomTaken() == false) {
                     switch (room.getId()) {
@@ -391,6 +378,23 @@ public class FXMLDocumentController implements Initializable {
                             text_homestatus_fifthroom.setText("Room is free");
                             break;
                     }
+                }else{
+                     switch (room.getId()) {
+                        case 1:
+                            text_homestatus_firstroom.setText("Room is taken");
+                            break;
+                        case 2:
+                            text_homestatus_secondroom.setText("Room is taken");
+                            break;
+                        case 3:
+                            text_homestatus_thirdroom.setText("Room is taken");
+                            break;
+                        case 4:
+                            text_homestatus_fourthroom.setText("Room is taken");
+                            break;
+                        case 5:
+                            text_homestatus_fifthroom.setText("Room is taken");
+                            break;                
                 }
             }
 

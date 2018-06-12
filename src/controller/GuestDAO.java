@@ -27,6 +27,10 @@ public class GuestDAO {
         }       
     }
     
+    public void addGuestHistory(Guest guest, ObservableList<Guest> historyGuestList){
+        historyGuestList.add(guest);
+    }
+    
     public void removeGuestFromRoom(Guest guest, ObservableList<Guest> activeGuestsList){
         if(activeGuestsList.contains(guest)){
             activeGuestsList.remove(guest);

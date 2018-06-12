@@ -25,7 +25,7 @@ public class RoomDAO {
     
     //Init 5(integer as variable) rooms at app start
     public ObservableList<Room> createHotelRooms(int roomNumber){
-        for(int i = 1;i<=5;i++){
+        for(int i = 1;i<=roomNumber;i++){
             room = new Room(i,false); //at start all rooms are free
             roomsList.add(room);
         }
